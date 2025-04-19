@@ -5,29 +5,84 @@ import { Button } from "@/components/ui/button";
 import { useAuth } from "@/context/AuthContext";
 import { Skeleton } from "@/components/ui/skeleton";
 
-const Navigation = ({ onStart }: { onStart?: () => void }) => {
+const Navigation = () => {
   const [isOpen, setIsOpen] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
   const { session, user, loading, signOut } = useAuth();
+  const [signOutLoading, setSignOutLoading] = useState(false);
   
-  const handleGetStarted = () => {
-    if (onStart) {
-      onStart();
-    } else {
-      navigate('/');
-    }
+  const handleSignOut = async () => {
+    setSignOutLoading(true);
+    await signOut();
+    setSignOutLoading(false);
+    setIsOpen(false);
+    navigate('/');
   };
   
-  const navItems = [
+  const baseNavItems = [
     { name: "Home", path: "/" },
-    { name: "Profile", path: "/profile" },
     { name: "Challenges", path: "/challenges" },
     { name: "Rewards", path: "/rewards" },
     { name: "Leaderboard", path: "/leaderboard" },
     { name: "Community", path: "/community" },
     { name: "About", path: "/about" },
   ];
+  
+  const navItems = session
+    ? [{ name: "Profile", path: "/profile" }, ...baseNavItems]
+    : baseNavItems;
+  
+  const AuthButtons = () => {
+    if (loading) {
+      return (
+        <div className="flex items-center space-x-2 ml-4">
+          <Skeleton className="h-8 w-20" />
+          <Skeleton className="h-8 w-20" />
+        </div>
+      );
+    }
+    if (session) {
+      return (
+        <div className="flex items-center space-x-2 ml-4">
+          <span className="text-sm text-leafy-700 hidden sm:inline">
+            {user?.email} 
+          </span>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={handleSignOut}
+            disabled={signOutLoading}
+            className="text-leafy-800 hover:bg-leafy-100"
+          >
+            <LogOut className="h-4 w-4 mr-1" />
+            {signOutLoading ? "Signing Out..." : "Sign Out"}
+          </Button>
+        </div>
+      );
+    }
+    return (
+      <div className="flex items-center space-x-2 ml-4">
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={() => { navigate('/login'); setIsOpen(false); }}
+          className="text-leafy-800 hover:bg-leafy-100"
+        >
+           <LogIn className="h-4 w-4 mr-1" />
+           Sign In
+        </Button>
+        <Button
+          size="sm"
+          onClick={() => { navigate('/register'); setIsOpen(false); }}
+          className="eco-button"
+        >
+          <UserPlus className="h-4 w-4 mr-1" />
+          Sign Up
+        </Button>
+      </div>
+    );
+  };
   
   return (
     <nav className="bg-white/90 backdrop-blur-sm py-4 sticky top-0 z-50 shadow-sm">
@@ -52,12 +107,7 @@ const Navigation = ({ onStart }: { onStart?: () => void }) => {
                 {item.name}
               </Link>
             ))}
-            <Button 
-              className="ml-4 eco-button"
-              onClick={handleGetStarted}
-            >
-              Get Started
-            </Button>
+            <AuthButtons />
           </div>
           
           <div className="md:hidden">
@@ -83,12 +133,9 @@ const Navigation = ({ onStart }: { onStart?: () => void }) => {
                   {item.name}
                 </Link>
               ))}
-              <Button 
-                className="mt-2 eco-button"
-                onClick={handleGetStarted}
-              >
-                Get Started
-              </Button>
+              <div className="mt-4 pt-4 border-t border-leafy-100">
+                <AuthButtons />
+              </div>
             </div>
           </div>
         )}

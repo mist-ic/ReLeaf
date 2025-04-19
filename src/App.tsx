@@ -15,6 +15,7 @@ import SignInPage from "./pages/SignInPage";
 import RequestPasswordReset from "./pages/RequestPasswordReset";
 import UpdatePassword from "./pages/UpdatePassword";
 import SignUpPage from "./pages/SignUpPage";
+import ChallengeDetail from "./pages/ChallengeDetail";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -35,6 +36,7 @@ const App = () => (
           <Route element={<ProtectedRoute />}>
             <Route path="/profile" element={<Profile />} />
             <Route path="/challenges" element={<Challenges />} />
+            <Route path="/challenges/:challengeId" element={<ChallengeDetail />} />
             <Route path="/rewards" element={<Rewards />} />
             <Route path="/leaderboard" element={<Leaderboard />} />
             <Route path="/community" element={<Community />} />

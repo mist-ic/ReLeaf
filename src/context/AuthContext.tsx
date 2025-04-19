@@ -7,6 +7,7 @@ interface Profile {
   id: string;
   name?: string;
   age?: number;
+  points?: number; // Add points
   // Add other profile fields here
 }
 
@@ -16,6 +17,7 @@ interface AuthContextType {
   profile: Profile | null;
   loading: boolean;
   signOut: () => Promise<void>;
+  refreshProfile: () => Promise<void>; // Add a function to manually refresh profile
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -29,6 +31,30 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
+
+  // --- Helper function to fetch profile ---
+  const fetchProfile = async (userId: string) => {
+    try {
+      const { data, error, status } = await supabase
+        .from('profiles')
+        .select(`id, name, age, points`) // Select points
+        .eq('id', userId)
+        .single();
+
+      if (error && status !== 406) {
+        // 406 means no row found, which is okay initially
+        throw error;
+      }
+
+      if (data) {
+        setProfile(data as Profile);
+      }
+    } catch (error: any) {
+      console.error('Error fetching profile:', error.message);
+      // Handle error appropriately, maybe show a toast
+    }
+  };
+  // --- End helper function ---
 
   useEffect(() => {
     const fetchSession = async () => {
@@ -47,44 +73,35 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     // Listen for auth changes
     const { data: authListener } = supabase.auth.onAuthStateChange(
       async (_event, session) => {
+        const currentSessionUser = session?.user ?? null;
         setSession(session);
-        setUser(session?.user ?? null);
-        setProfile(null); // Reset profile on auth change, fetch it again if needed
+        setUser(currentSessionUser);
+        setProfile(null); // Reset profile on auth change
+        if (currentSessionUser) {
+           await fetchProfile(currentSessionUser.id); // Fetch profile immediately on auth change
+        }
         setLoading(false);
       }
     );
+
+    // Initial fetch on load
+     const initializeAuth = async () => {
+        const { data: { session }, error } = await supabase.auth.getSession();
+        if (error) {
+            console.error("Error fetching session:", error);
+        } else if (session?.user) {
+            setSession(session);
+            setUser(session.user);
+            await fetchProfile(session.user.id); // Fetch profile if session exists on load
+        }
+        setLoading(false);
+     };
+     initializeAuth();
 
     return () => {
       authListener?.subscription.unsubscribe();
     };
   }, []);
-
-  // Fetch profile when user changes
-  useEffect(() => {
-    if (user && !profile) {
-      const fetchProfile = async () => {
-        try {
-          const { data, error, status } = await supabase
-            .from('profiles')
-            .select(`id, name, age`)
-            .eq('id', user.id)
-            .single();
-
-          if (error && status !== 406) {
-            throw error;
-          }
-
-          if (data) {
-            setProfile(data as Profile);
-          }
-        } catch (error: any) {
-          console.error('Error fetching profile:', error.message);
-          // Handle error appropriately, maybe show a toast
-        }
-      };
-      fetchProfile();
-    }
-  }, [user, profile]);
 
   const signOut = async () => {
     setLoading(true);
@@ -97,12 +114,20 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     setLoading(false);
   };
 
+  // Function to allow manual profile refresh (e.g., after points update)
+  const refreshProfile = async () => {
+    if (user) {
+      await fetchProfile(user.id);
+    }
+  };
+
   const value = {
     session,
     user,
     profile,
     loading,
     signOut,
+    refreshProfile, // Provide the refresh function
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

@@ -9,7 +9,7 @@ const Navigation = () => {
   const [isOpen, setIsOpen] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
-  const { session, user, loading, signOut } = useAuth();
+  const { session, user, profile, loading, signOut } = useAuth();
   const [signOutLoading, setSignOutLoading] = useState(false);
   
   const handleSignOut = async () => {
@@ -45,7 +45,13 @@ const Navigation = () => {
     if (session) {
       return (
         <div className="flex items-center space-x-2 ml-4">
-          <span className="text-sm text-leafy-700 hidden sm:inline">
+          {profile && profile.points !== undefined && (
+            <div className="flex items-center space-x-1 bg-leafy-100 text-leafy-700 px-2 py-1 rounded-full text-sm font-medium hidden sm:flex">
+               <Leaf className="h-4 w-4 text-leafy-500" />
+               <span>{profile.points}</span>
+            </div>
+          )}
+          <span className="text-sm text-leafy-700 hidden lg:inline">
             {user?.email} 
           </span>
           <Button

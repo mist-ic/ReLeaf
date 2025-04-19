@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
+import { useNavigate } from 'react-router-dom'; // Import useNavigate
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -24,6 +25,7 @@ interface AuthFormProps {
 export const AuthForm: React.FC<AuthFormProps> = ({ mode }) => {
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
+  const navigate = useNavigate(); // Initialize navigate
   const {
     register,
     handleSubmit,
@@ -36,28 +38,57 @@ export const AuthForm: React.FC<AuthFormProps> = ({ mode }) => {
     setLoading(true);
     try {
       if (mode === 'signUp') {
-        const { error } = await supabase.auth.signUp({
+        // Sign Up
+        const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
           email: data.email,
           password: data.password,
         });
-        if (error) throw error;
-        // TODO: Add profile creation step after sign up
-        toast({
-          title: "Sign Up Successful!",
-          description: "Please check your email to verify your account.",
-        });
-        // TODO: Redirect or update UI
+
+        if (signUpError) throw signUpError;
+
+        // Insert initial profile data (can be updated later)
+        if (signUpData.user) {
+          const { error: profileError } = await supabase
+            .from('profiles')
+            .insert({ id: signUpData.user.id }); // Only insert the ID initially
+
+          if (profileError) {
+            // Log profile error but don't block user flow
+            console.error('Error creating profile:', profileError.message);
+            toast({
+              title: "Sign Up Successful (Profile Pending)",
+              description: "Account created, but failed to initialize profile. Please update it later.",
+              variant: "destructive", // Use a less alarming variant if preferred
+            });
+          } else {
+            toast({
+              title: "Sign Up Successful!",
+              description: "Please check your email to verify your account.",
+            });
+          }
+        } else {
+           // This case might happen if email verification is required and user isn't immediately available
+            toast({
+              title: "Sign Up Successful!",
+              description: "Please check your email to verify your account.",
+            });
+        }
+        navigate('/'); // Redirect to home after sign up
+
       } else {
-        const { error } = await supabase.auth.signInWithPassword({
+        // Sign In
+        const { error: signInError } = await supabase.auth.signInWithPassword({
           email: data.email,
           password: data.password,
         });
-        if (error) throw error;
+
+        if (signInError) throw signInError;
+
         toast({
           title: "Sign In Successful!",
           description: "Welcome back!",
         });
-        // TODO: Redirect or update UI
+        navigate('/'); // Redirect to home after sign in
       }
     } catch (error: any) {
       console.error(`${mode} error:`, error.message);

@@ -2,30 +2,32 @@ import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
-import { useNavigate } from 'react-router-dom'; // Import useNavigate
+import { useNavigate, Link } from 'react-router-dom'; // Add Link
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { supabase } from '@/lib/supabaseClient'; // Import supabase client
+import { supabase } from '@/lib/supabaseClient';
 import { useToast } from "@/components/ui/use-toast";
+import { LogIn } from 'lucide-react'; // Icon
 
-// Define Zod schema for validation
+// Define Zod schema for validation (only email/password)
 const formSchema = z.object({
   email: z.string().email({ message: 'Invalid email address.' }),
-  password: z.string().min(6, { message: 'Password must be at least 6 characters.' }),
+  password: z.string().min(1, { message: 'Password is required.' }), // Min 1, as length check is done by Supabase
 });
 
 type FormData = z.infer<typeof formSchema>;
 
-interface AuthFormProps {
-  mode: 'signIn' | 'signUp';
-}
-
-export const AuthForm: React.FC<AuthFormProps> = ({ mode }) => {
+// Remove mode prop
+// interface AuthFormProps {
+//   mode: 'signIn' | 'signUp';
+// }
+// export const AuthForm: React.FC<AuthFormProps> = ({ mode }) => {
+export const AuthForm: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
-  const navigate = useNavigate(); // Initialize navigate
+  const navigate = useNavigate();
   const {
     register,
     handleSubmit,
@@ -37,63 +39,25 @@ export const AuthForm: React.FC<AuthFormProps> = ({ mode }) => {
   const onSubmit = async (data: FormData) => {
     setLoading(true);
     try {
-      if (mode === 'signUp') {
-        // Sign Up
-        const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
-          email: data.email,
-          password: data.password,
-        });
+      // Sign In logic only
+      const { error: signInError } = await supabase.auth.signInWithPassword({
+        email: data.email,
+        password: data.password,
+      });
 
-        if (signUpError) throw signUpError;
+      if (signInError) throw signInError;
 
-        // Insert initial profile data (can be updated later)
-        if (signUpData.user) {
-          const { error: profileError } = await supabase
-            .from('profiles')
-            .insert({ id: signUpData.user.id }); // Only insert the ID initially
-
-          if (profileError) {
-            // Log profile error but don't block user flow
-            console.error('Error creating profile:', profileError.message);
-            toast({
-              title: "Sign Up Successful (Profile Pending)",
-              description: "Account created, but failed to initialize profile. Please update it later.",
-              variant: "destructive", // Use a less alarming variant if preferred
-            });
-          } else {
-            toast({
-              title: "Sign Up Successful!",
-              description: "Please check your email to verify your account.",
-            });
-          }
-        } else {
-           // This case might happen if email verification is required and user isn't immediately available
-            toast({
-              title: "Sign Up Successful!",
-              description: "Please check your email to verify your account.",
-            });
-        }
-        navigate('/'); // Redirect to home after sign up
-
-      } else {
-        // Sign In
-        const { error: signInError } = await supabase.auth.signInWithPassword({
-          email: data.email,
-          password: data.password,
-        });
-
-        if (signInError) throw signInError;
-
-        toast({
-          title: "Sign In Successful!",
-          description: "Welcome back!",
-        });
-        navigate('/'); // Redirect to home after sign in
-      }
-    } catch (error: any) {
-      console.error(`${mode} error:`, error.message);
       toast({
-        title: `Error during ${mode}`,
+        title: "Sign In Successful!",
+        description: "Welcome back!",
+      });
+      // Redirect to challenges on successful sign-in
+      navigate('/challenges'); 
+
+    } catch (error: any) {
+      console.error(`Sign In error:`, error.message);
+      toast({
+        title: `Error during Sign In`,
         description: error.message || "An unexpected error occurred.",
         variant: "destructive",
       });
@@ -103,46 +67,61 @@ export const AuthForm: React.FC<AuthFormProps> = ({ mode }) => {
   };
 
   return (
-    <Card className="w-full max-w-md">
-      <CardHeader>
-        <CardTitle>{mode === 'signIn' ? 'Sign In' : 'Sign Up'}</CardTitle>
-        <CardDescription>
-          {mode === 'signIn'
-            ? 'Enter your credentials to access your account.'
-            : 'Create an account to get started.'}
+    <Card className="w-full max-w-md shadow-lg border-leafy-100">
+      <CardHeader className="text-center">
+         <div className="mx-auto bg-leafy-100 rounded-full h-16 w-16 flex items-center justify-center mb-4">
+           <LogIn className="h-8 w-8 text-leafy-600" />
+        </div>
+        <CardTitle className="text-3xl font-bold text-leafy-800">Welcome Back!</CardTitle>
+        <CardDescription className="text-leafy-600">
+           Sign in to continue your eco-journey.
         </CardDescription>
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           <div>
-            <Label htmlFor="email">Email</Label>
+            <Label htmlFor="email" className="text-leafy-700">Email</Label>
             <Input
               id="email"
               type="email"
               placeholder="m@example.com"
               {...register('email')}
               disabled={loading}
+              className="mt-1 focus:ring-leafy-500 focus:border-leafy-500"
             />
             {errors.email && <p className="text-sm text-red-500 mt-1">{errors.email.message}</p>}
           </div>
           <div>
-            <Label htmlFor="password">Password</Label>
+            <Label htmlFor="password" className="text-leafy-700">Password</Label>
             <Input
               id="password"
               type="password"
+              placeholder="******"
               {...register('password')}
               disabled={loading}
+              className="mt-1 focus:ring-leafy-500 focus:border-leafy-500"
             />
-            {errors.password && <p className="text-sm text-red-500 mt-1">{errors.password.message}</p>}
+             {errors.password && <p className="text-sm text-red-500 mt-1">{errors.password.message}</p>}
+             {/* Link to forgot password */}
+             <div className="text-right mt-1">
+                <Link 
+                  to="/request-password-reset" 
+                  className="text-xs font-medium text-leafy-600 hover:text-leafy-800 underline"
+                >
+                   Forgot password?
+                 </Link>
+             </div>
           </div>
-          <Button type="submit" className="w-full" disabled={loading}>
-            {loading ? 'Processing...' : mode === 'signIn' ? 'Sign In' : 'Sign Up'}
+          <Button type="submit" className="w-full eco-button text-lg py-3 mt-4" disabled={loading}>
+            {loading ? 'Signing In...' : 'Sign In'}
           </Button>
         </form>
       </CardContent>
-       {/* Optional: Add link to switch between Sign In/Sign Up */}
        <CardFooter className="text-sm text-center justify-center">
-         {/* TODO: Add navigation link */}
+          Don't have an account?{' '}
+          <Link to="/register" className="underline font-medium text-leafy-700 hover:text-leafy-800">
+             Sign up
+           </Link>
        </CardFooter>
     </Card>
   );

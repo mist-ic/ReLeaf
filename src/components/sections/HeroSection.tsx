@@ -1,11 +1,22 @@
-
 import { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { ArrowRight } from "lucide-react";
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from '@/context/AuthContext';
 
-const HeroSection = ({ onStart }: { onStart: () => void }) => {
+const HeroSection = () => {
   const [isHovered, setIsHovered] = useState(false);
-  
+  const navigate = useNavigate();
+  const { session, loading } = useAuth();
+
+  const handleStartClick = () => {
+    if (session) {
+      navigate('/challenges');
+    } else {
+      navigate('/register');
+    }
+  };
+
   return (
     <div className="relative overflow-hidden min-h-[90vh] flex items-center">
       <div className="leaf-pattern absolute inset-0 opacity-60"></div>
@@ -34,10 +45,11 @@ const HeroSection = ({ onStart }: { onStart: () => void }) => {
               onMouseLeave={() => setIsHovered(false)}
             >
               <Button 
-                onClick={onStart} 
+                onClick={handleStartClick}
+                disabled={loading}
                 className="eco-button text-lg px-8 py-6 group"
               >
-                Start Now 
+                {session ? 'Go to Challenges' : 'Start Now'} 
                 <ArrowRight className={`ml-2 h-5 w-5 transition-transform duration-300 ${isHovered ? 'transform translate-x-1' : ''}`} />
               </Button>
               <p className="mt-3 text-sm text-leafy-500">

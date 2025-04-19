@@ -11,9 +11,10 @@ import Rewards from "./pages/Rewards";
 import Leaderboard from "./pages/Leaderboard";
 import Community from "./pages/Community";
 import About from "./pages/About";
-import AuthPage from "./pages/AuthPage";
+import SignInPage from "./pages/SignInPage";
 import RequestPasswordReset from "./pages/RequestPasswordReset";
 import UpdatePassword from "./pages/UpdatePassword";
+import SignUpPage from "./pages/SignUpPage";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -27,8 +28,8 @@ const App = () => (
         <Routes>
           <Route path="/" element={<Index />} />
           <Route path="/about" element={<About />} />
-          <Route path="/login" element={<AuthPage />} />
-          <Route path="/register" element={<AuthPage />} />
+          <Route path="/login" element={<SignInPage />} />
+          <Route path="/register" element={<SignUpPage />} />
           <Route path="/request-password-reset" element={<RequestPasswordReset />} />
           <Route path="/update-password" element={<UpdatePassword />} />
           <Route element={<ProtectedRoute />}>

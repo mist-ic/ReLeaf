@@ -3,6 +3,7 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+import ProtectedRoute from "./components/auth/ProtectedRoute";
 import Index from "./pages/Index";
 import Profile from "./pages/Profile";
 import Challenges from "./pages/Challenges";
@@ -11,6 +12,8 @@ import Leaderboard from "./pages/Leaderboard";
 import Community from "./pages/Community";
 import About from "./pages/About";
 import AuthPage from "./pages/AuthPage";
+import RequestPasswordReset from "./pages/RequestPasswordReset";
+import UpdatePassword from "./pages/UpdatePassword";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -23,15 +26,18 @@ const App = () => (
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<Index />} />
-          <Route path="/profile" element={<Profile />} />
-          <Route path="/challenges" element={<Challenges />} />
-          <Route path="/rewards" element={<Rewards />} />
-          <Route path="/leaderboard" element={<Leaderboard />} />
-          <Route path="/community" element={<Community />} />
           <Route path="/about" element={<About />} />
           <Route path="/login" element={<AuthPage />} />
           <Route path="/register" element={<AuthPage />} />
-          {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+          <Route path="/request-password-reset" element={<RequestPasswordReset />} />
+          <Route path="/update-password" element={<UpdatePassword />} />
+          <Route element={<ProtectedRoute />}>
+            <Route path="/profile" element={<Profile />} />
+            <Route path="/challenges" element={<Challenges />} />
+            <Route path="/rewards" element={<Rewards />} />
+            <Route path="/leaderboard" element={<Leaderboard />} />
+            <Route path="/community" element={<Community />} />
+          </Route>
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>

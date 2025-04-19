@@ -1,9 +1,23 @@
 import { AuthForm } from "@/components/auth/AuthForm";
-import { useLocation, Link } from "react-router-dom";
+import { useLocation, Link, useNavigate } from "react-router-dom";
+import { useAuth } from "@/context/AuthContext";
+import { useEffect } from 'react';
 
 export default function AuthPage() {
   const location = useLocation();
+  const navigate = useNavigate();
+  const { session, loading } = useAuth();
   const mode = location.pathname === '/login' ? 'signIn' : 'signUp';
+
+  useEffect(() => {
+    if (!loading && session) {
+      navigate('/');
+    }
+  }, [session, loading, navigate]);
+
+  if (loading || session) {
+    return null;
+  }
 
   return (
     <div className="flex justify-center items-center min-h-screen bg-background">

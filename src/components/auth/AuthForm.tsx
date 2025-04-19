@@ -9,7 +9,7 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { supabase } from '@/lib/supabaseClient';
 import { useToast } from "@/components/ui/use-toast";
-import { LogIn } from 'lucide-react'; // Icon
+import { LogIn, MailWarning } from 'lucide-react'; // Icon and MailWarning icon
 
 // Define Zod schema for validation (only email/password)
 const formSchema = z.object({
@@ -26,41 +26,91 @@ type FormData = z.infer<typeof formSchema>;
 // export const AuthForm: React.FC<AuthFormProps> = ({ mode }) => {
 export const AuthForm: React.FC = () => {
   const [loading, setLoading] = useState(false);
+  const [resendLoading, setResendLoading] = useState(false);
+  const [showResend, setShowResend] = useState(false);
+  const [emailForResend, setEmailForResend] = useState('');
   const { toast } = useToast();
   const navigate = useNavigate();
   const {
     register,
     handleSubmit,
+    watch, // Watch email field for resend
     formState: { errors },
   } = useForm<FormData>({
     resolver: zodResolver(formSchema),
   });
 
+  // Watch the email field to use it for resend
+  const watchedEmail = watch("email");
+  React.useEffect(() => {
+    setEmailForResend(watchedEmail);
+  }, [watchedEmail]);
+
+  const handleResendConfirmation = async () => {
+    if (!emailForResend) {
+       toast({ title: "Error", description: "Please enter your email first.", variant: "destructive" });
+       return;
+    }
+    setResendLoading(true);
+    try {
+       const { error } = await supabase.auth.resend({ 
+          type: 'signup', 
+          email: emailForResend 
+       });
+       if (error) throw error;
+       toast({ title: "Confirmation Email Resent", description: "Please check your inbox.", });
+       setShowResend(false); // Hide resend button after successful send
+    } catch (error: any) {
+       console.error("Resend error:", error.message);
+       toast({ title: "Error Resending Email", description: error.message || "Please try again.", variant: "destructive" });
+    } finally {
+       setResendLoading(false);
+    }
+ };
+
   const onSubmit = async (data: FormData) => {
     setLoading(true);
+    setShowResend(false); // Reset resend button visibility on new submit
+    setEmailForResend(data.email); // Ensure email is set for potential resend
     try {
-      // Sign In logic only
       const { error: signInError } = await supabase.auth.signInWithPassword({
         email: data.email,
         password: data.password,
       });
 
-      if (signInError) throw signInError;
-
-      toast({
-        title: "Sign In Successful!",
-        description: "Welcome back!",
-      });
-      // Redirect to challenges on successful sign-in
-      navigate('/challenges'); 
+      if (signInError) {
+        // Check if the error is due to unconfirmed email
+        if (signInError.message.includes('Email not confirmed')) {
+          setShowResend(true); // Show the resend button/message
+          toast({
+            title: "Email Not Verified",
+            description: "Please click the link in the confirmation email sent to you. You can also resend the email.",
+            variant: "destructive",
+            duration: 7000, // Keep toast longer
+          });
+        } else {
+          // Handle other sign-in errors
+          throw signInError;
+        }
+      } else {
+        // Successful sign in
+        toast({
+          title: "Sign In Successful!",
+          description: "Welcome back!",
+        });
+        navigate('/challenges');
+      }
 
     } catch (error: any) {
+      // Catch errors not handled above (like wrong password)
       console.error(`Sign In error:`, error.message);
-      toast({
-        title: `Error during Sign In`,
-        description: error.message || "An unexpected error occurred.",
-        variant: "destructive",
-      });
+       if (!showResend) { // Don't show generic error if specific resend message is already shown
+          toast({
+             title: `Error during Sign In`,
+             description: error.message || "An unexpected error occurred.",
+             variant: "destructive",
+          });
+       }
     } finally {
       setLoading(false);
     }
@@ -86,7 +136,7 @@ export const AuthForm: React.FC = () => {
               type="email"
               placeholder="m@example.com"
               {...register('email')}
-              disabled={loading}
+              disabled={loading || resendLoading}
               className="mt-1 focus:ring-leafy-500 focus:border-leafy-500"
             />
             {errors.email && <p className="text-sm text-red-500 mt-1">{errors.email.message}</p>}
@@ -98,7 +148,7 @@ export const AuthForm: React.FC = () => {
               type="password"
               placeholder="******"
               {...register('password')}
-              disabled={loading}
+              disabled={loading || resendLoading}
               className="mt-1 focus:ring-leafy-500 focus:border-leafy-500"
             />
              {errors.password && <p className="text-sm text-red-500 mt-1">{errors.password.message}</p>}
@@ -112,7 +162,26 @@ export const AuthForm: React.FC = () => {
                  </Link>
              </div>
           </div>
-          <Button type="submit" className="w-full eco-button text-lg py-3 mt-4" disabled={loading}>
+          {/* Resend Confirmation Button Area */} 
+          {showResend && (
+             <div className="text-center p-3 bg-yellow-50 border border-yellow-200 rounded-md">
+                <p className="text-sm text-yellow-700 mb-2">
+                   Your email address needs to be confirmed.
+                </p>
+                <Button
+                   type="button"
+                   variant="outline"
+                   size="sm"
+                   onClick={handleResendConfirmation}
+                   disabled={resendLoading || !emailForResend}
+                   className="text-yellow-800 border-yellow-300 hover:bg-yellow-100"
+                >
+                   <MailWarning className="h-4 w-4 mr-2" />
+                   {resendLoading ? 'Sending...' : 'Resend Confirmation Email'}
+                </Button>
+             </div>
+          )}
+          <Button type="submit" className="w-full eco-button text-lg py-3 mt-2" disabled={loading || resendLoading}>
             {loading ? 'Signing In...' : 'Sign In'}
           </Button>
         </form>

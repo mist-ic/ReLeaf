@@ -8,6 +8,7 @@ interface Profile {
   name?: string;
   age?: number;
   points?: number; // Add points
+  login_streak?: number; // Add login streak
   // Add other profile fields here
 }
 
@@ -37,7 +38,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     try {
       const { data, error, status } = await supabase
         .from('profiles')
-        .select(`id, name, age, points`) // Select points
+        .select(`id, name, age, points, login_streak`) // Select points and login_streak
         .eq('id', userId)
         .single();
 

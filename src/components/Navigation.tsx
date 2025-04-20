@@ -1,9 +1,10 @@
 import { useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { Menu, X, Leaf, LogOut, LogIn, UserPlus } from "lucide-react";
+import { Menu, X, Leaf, LogOut, LogIn, UserPlus, Flame, Award, Star, Trophy, Medal } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/context/AuthContext";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 const Navigation = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -44,27 +45,81 @@ const Navigation = () => {
     }
     if (session) {
       return (
-        <div className="flex items-center space-x-2 ml-4">
-          {profile && profile.points !== undefined && (
-            <div className="flex items-center space-x-1 bg-leafy-100 text-leafy-700 px-2 py-1 rounded-full text-sm font-medium hidden sm:flex">
-               <Leaf className="h-4 w-4 text-leafy-500" />
-               <span>{profile.points}</span>
-            </div>
-          )}
-          <span className="text-sm text-leafy-700 hidden lg:inline">
-            {user?.email} 
-          </span>
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={handleSignOut}
-            disabled={signOutLoading}
-            className="text-leafy-800 hover:bg-leafy-100"
-          >
-            <LogOut className="h-4 w-4 mr-1" />
-            {signOutLoading ? "Signing Out..." : "Sign Out"}
-          </Button>
-        </div>
+        <TooltipProvider delayDuration={100}>
+          <div className="flex items-center space-x-2 ml-4">
+            {profile && (
+              <div className="flex items-center space-x-2 bg-leafy-100 text-leafy-700 px-2 py-1 rounded-full text-sm font-medium hidden sm:flex">
+                {profile.points !== undefined && (
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <div className="flex items-center space-x-1 cursor-default">
+                        <Leaf className="h-4 w-4 text-leafy-500" />
+                        <span>{profile.points}</span>
+                      </div>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>Points: {profile.points}</p>
+                    </TooltipContent>
+                  </Tooltip>
+                )}
+                {profile.login_streak !== undefined && profile.login_streak > 0 && (
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                       <div className="flex items-center space-x-1 border-l border-leafy-200 pl-2 cursor-default">
+                         <Flame className="h-4 w-4 text-orange-500" />
+                         <span>{profile.login_streak}</span>
+                       </div>
+                    </TooltipTrigger>
+                     <TooltipContent>
+                      <p>Current Streak: {profile.login_streak} days</p>
+                    </TooltipContent>
+                  </Tooltip>
+                )}
+                {profile.login_streak !== undefined && profile.login_streak >= 3 && (
+                   <div className="flex items-center space-x-1 border-l border-leafy-200 pl-2">
+                     {(() => {
+                        const streak = profile.login_streak || 0;
+                        let BadgeIcon: React.ElementType | null = null;
+                        let badgeTitle = "";
+
+                        if (streak >= 30) { BadgeIcon = Medal; badgeTitle = "30+ Day Streak!"; }
+                        else if (streak >= 14) { BadgeIcon = Trophy; badgeTitle = "14+ Day Streak!"; }
+                        else if (streak >= 7) { BadgeIcon = Star; badgeTitle = "7+ Day Streak!"; }
+                        else if (streak >= 3) { BadgeIcon = Award; badgeTitle = "3+ Day Streak!"; }
+
+                        if (BadgeIcon) {
+                          return (
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <BadgeIcon className="h-4 w-4 text-yellow-500 cursor-default" />
+                              </TooltipTrigger>
+                              <TooltipContent>
+                                <p>{badgeTitle}</p>
+                              </TooltipContent>
+                            </Tooltip>
+                          );
+                        }
+                        return null;
+                     })()}
+                   </div>
+                )}
+              </div>
+            )}
+            <span className="text-sm text-leafy-700 hidden lg:inline">
+              {user?.email} 
+            </span>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={handleSignOut}
+              disabled={signOutLoading}
+              className="text-leafy-800 hover:bg-leafy-100"
+            >
+              <LogOut className="h-4 w-4 mr-1" />
+              {signOutLoading ? "Signing Out..." : "Sign Out"}
+            </Button>
+          </div>
+        </TooltipProvider>
       );
     }
     return (

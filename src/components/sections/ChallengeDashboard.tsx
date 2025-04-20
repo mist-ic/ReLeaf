@@ -191,13 +191,13 @@ const ChallengeDashboard = () => {
           {challenge.description && (
              <p className="text-leafy-600 text-sm line-clamp-2">{challenge.description}</p>
           )}
-        </div>
-        
+      </div>
+      
         <div className="flex justify-between items-center mt-auto">
           <div className="bg-leafy-50 px-3 py-1 rounded-full text-xs text-leafy-700 font-medium capitalize">
             {challenge.category} Challenge
-          </div>
-          
+      </div>
+      
           {status === 'not_started' && (
              <Button 
                 variant="outline"
@@ -211,15 +211,15 @@ const ChallengeDashboard = () => {
              </Button>
           )}
           {status === 'in_progress' && (
-             <Button 
-                variant="link" 
+        <Button 
+          variant="link" 
                 size="sm"
                 className="text-leafy-600 hover:text-leafy-700 p-0 h-auto text-xs font-medium"
                 onClick={() => navigate(`/challenges/${challenge.id}`)}
-             >
+        >
                <Eye className="h-4 w-4 mr-1" />
                 View Progress
-             </Button>
+        </Button>
           )}
           {(status === 'completed' || status === 'verified') && (
              <div className="flex items-center text-xs text-green-600 font-medium">
@@ -256,7 +256,7 @@ const ChallengeDashboard = () => {
   const dailyChallenges = challenges.filter(c => c.category === 'daily');
   const weeklyChallenges = challenges.filter(c => c.category === 'weekly');
   const monthlyChallenges = challenges.filter(c => c.category === 'monthly');
-
+  
   return (
     <div className="bg-leafy-50/50 min-h-screen py-12">
       <div className="section-container">
@@ -276,9 +276,9 @@ const ChallengeDashboard = () => {
           
           <TabsContent value="daily" className="animate-grow">
              {dailyChallenges.length > 0 ? (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                    {dailyChallenges.map(renderChallengeCard)}
-                </div>
+            </div>
               ) : (
                  <p className="text-center text-leafy-600 py-8">No daily challenges available right now.</p>
               )}
@@ -286,9 +286,9 @@ const ChallengeDashboard = () => {
           
           <TabsContent value="weekly" className="animate-grow">
               {weeklyChallenges.length > 0 ? (
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                      {weeklyChallenges.map(renderChallengeCard)}
-                  </div>
+            </div>
                ) : (
                   <p className="text-center text-leafy-600 py-8">No weekly challenges available right now.</p>
                )}
@@ -296,9 +296,9 @@ const ChallengeDashboard = () => {
           
           <TabsContent value="monthly" className="animate-grow">
               {monthlyChallenges.length > 0 ? (
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                      {monthlyChallenges.map(renderChallengeCard)}
-                  </div>
+            </div>
                ) : (
                   <p className="text-center text-leafy-600 py-8">No monthly challenges available right now.</p>
                )}

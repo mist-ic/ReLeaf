@@ -170,7 +170,7 @@ const Rewards = () => {
                   marketplaceRewards.length > 0 ? (
                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                         {marketplaceRewards.map(renderRewardCard)}
-                     </div>
+                          </div>
                   ) : (
                      <p className="text-center text-leafy-600 py-8">No marketplace rewards available right now.</p>
                   )
@@ -182,7 +182,7 @@ const Rewards = () => {
                   donationRewards.length > 0 ? (
                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                         {donationRewards.map(renderRewardCard)}
-                     </div>
+                        </div>
                   ) : (
                      <p className="text-center text-leafy-600 py-8">No donation rewards available right now.</p>
                   )
@@ -194,8 +194,8 @@ const Rewards = () => {
                   exclusiveRewards.length > 0 ? (
                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                         {exclusiveRewards.map(renderRewardCard)}
-                     </div>
-                  ) : (
+                        </div>
+                      ) : (
                      <p className="text-center text-leafy-600 py-8">No exclusive rewards available right now.</p>
                   )
                )}

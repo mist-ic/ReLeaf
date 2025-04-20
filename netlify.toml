@@ -7,6 +7,5 @@
   # Check your local `bun --version` and use a matching or desired version
   BUN_VERSION = "1.1.20" # Example version, adjust if needed
 
-# Override the default installation command
-[plugins.inputs.install_command_override]
-  command = "bun install --frozen-lockfile" 
+# Netlify will automatically detect bun.lockb and use 'bun install'
+# when BUN_VERSION is set. 

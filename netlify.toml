@@ -8,4 +8,10 @@
   BUN_VERSION = "1.1.20" # Example version, adjust if needed
 
 # Netlify will automatically detect bun.lockb and use 'bun install'
-# when BUN_VERSION is set. 
+# when BUN_VERSION is set.
+
+# SPA Redirect Rule: Serves index.html for any path not matching a file.
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200 

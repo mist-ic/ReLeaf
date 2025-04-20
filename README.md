@@ -4,6 +4,8 @@ ReLeaf is an innovative app that transforms sustainability into an engaging game
 
 [![Netlify Status](https://api.netlify.com/api/v1/badges/21425508-9145-408a-a715-4c175a997654/deploy-status)](https://app.netlify.com/sites/releafy/deploys)
 
+[Click here to visit the live site](https://releafy.netlify.app/)
+
 ## Key Features
 
 *   **User Authentication:** Secure sign-up, sign-in, sign-out, and password recovery.

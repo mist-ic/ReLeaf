@@ -98,6 +98,20 @@ export const AuthForm: React.FC = () => {
           title: "Sign In Successful!",
           description: "Welcome back!",
         });
+
+        // Call the function to update login streak
+        try {
+          const { error: streakError } = await supabase.rpc('update_login_streak');
+          if (streakError) {
+            // Log the error but don't block the user
+            console.error("Error updating login streak:", streakError);
+            // Optionally, show a non-critical toast
+            // toast({ title: "Streak Update Issue", description: "Could not update login streak.", variant: "destructive" });
+          }
+        } catch (rpcError) {
+          console.error("Unexpected error calling update_login_streak:", rpcError);
+        }
+
         navigate('/challenges');
       }
 

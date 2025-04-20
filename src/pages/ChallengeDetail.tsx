@@ -10,6 +10,8 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Skeleton } from '@/components/ui/skeleton';
 import { AlertCircle, ArrowLeft, Check, CheckCircle2, Upload, Info, Target, Award, ListChecks, Loader2 } from 'lucide-react';
 import { DynamicIcon } from '@/components/sections/ChallengeDashboard'; // Reuse the dynamic icon helper
+import Confetti from 'react-confetti'; // Import Confetti
+import { useWindowSize } from 'react-use'; // Import useWindowSize hook
 
 // Reuse types, maybe move to a types file later
 interface Challenge {
@@ -47,6 +49,8 @@ const ChallengeDetail = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [completeLoading, setCompleteLoading] = useState(false);
+  const [showConfetti, setShowConfetti] = useState(false); // State for confetti
+  const { width, height } = useWindowSize(); // Get window size for confetti
 
   useEffect(() => {
     const fetchDetails = async () => {
@@ -139,6 +143,10 @@ const ChallengeDetail = () => {
         
         // Refresh the profile data in the context to update points everywhere
         await refreshProfile(); 
+
+        // Trigger confetti
+        setShowConfetti(true);
+        setTimeout(() => setShowConfetti(false), 5000); // Hide confetti after 5 seconds
         
     } catch (err: any) {
        console.error("Error completing challenge:", err);
@@ -175,7 +183,18 @@ const ChallengeDetail = () => {
      const currentStatus = userChallenge?.status ?? 'not_started'; 
      
      return (
-       <div className="section-container py-12">
+       <div className="section-container py-12 relative"> {/* Add relative positioning for confetti */}
+          {/* Confetti Overlay */}
+          {showConfetti && (
+             <Confetti
+                width={width}
+                height={height}
+                recycle={false}
+                numberOfPieces={300}
+                gravity={0.1}
+             />
+          )}
+
           <Link to="/challenges" className="inline-flex items-center text-sm text-leafy-600 hover:text-leafy-800 mb-6">
              <ArrowLeft className="h-4 w-4 mr-1" />
              Back to Challenges
@@ -239,19 +258,15 @@ const ChallengeDetail = () => {
                 {currentStatus === 'in_progress' && (
                    <div className="pt-6 border-t border-leafy-100 space-y-4">
                       <h4 className="font-semibold text-leafy-700">Complete Your Challenge</h4>
-                      {/* TODO: Implement actual proof upload component */}
-                      <Button variant="outline" className="w-full sm:w-auto">
-                         <Upload className="h-4 w-4 mr-2" /> Upload Proof (Placeholder)
-                      </Button>
                       <Button 
-                         className="w-full sm:w-auto eco-button ml-0 sm:ml-2" 
+                         className="w-full sm:w-auto eco-button" // Removed margins, let parent div handle spacing 
                          onClick={handleCompleteChallenge}
                          disabled={completeLoading}
                       >
                          {completeLoading ? <Loader2 className="h-4 w-4 mr-2 animate-spin"/> : <Check className="h-4 w-4 mr-2"/>}
                          Mark as Completed
                       </Button>
-                      <p className="text-xs text-leafy-500">Complete the challenge and upload proof (if required) to earn points!</p>
+                      <p className="text-xs text-leafy-500">Click the button above to mark this challenge as completed and earn points!</p>
                    </div>
                 )}
 

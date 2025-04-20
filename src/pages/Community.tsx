@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import Navigation from '@/components/Navigation';
 import Footer from '@/components/Footer';
@@ -19,9 +18,9 @@ const Community = () => {
   const feedItems = [
     {
       id: 1,
-      user: { name: "Emma Rodriguez", username: "ecoemma", avatar: "/placeholder.svg" },
+      user: { name: "Emma Rodriguez", username: "ecoemma", avatar: "https://picsum.photos/id/21/40/40" },
       content: "Just completed my 30-day zero waste challenge! It was tough but so rewarding. I've learned so many ways to reduce my waste that I'll definitely keep doing. My next goal is to help my workplace reduce their waste too! #zerowaste #sustainableliving",
-      image: "/placeholder.svg",
+      image: "https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?ixlib=rb-4.0.3&q=80&fm=jpg&crop=entropy&cs=tinysrgb&w=800&h=320&fit=crop",
       likes: 42,
       comments: 8,
       shares: 5,
@@ -30,9 +29,9 @@ const Community = () => {
     },
     {
       id: 2,
-      user: { name: "Zero Waste Community", username: "zerowastecommunity", avatar: "/placeholder.svg", isGroup: true },
+      user: { name: "Zero Waste Community", username: "zerowastecommunity", avatar: "https://picsum.photos/id/22/40/40", isGroup: true },
       content: "This weekend's community clean-up was a huge success! Together we collected over 200 pounds of trash from the local beach. Thank you to everyone who participated! 🌊🌎♻️",
-      image: "/placeholder.svg",
+      image: "https://images.unsplash.com/photo-1618477388954-7852f32655ec?ixlib=rb-4.0.3&q=80&fm=jpg&crop=entropy&cs=tinysrgb&w=800&h=320&fit=crop",
       likes: 86,
       comments: 15,
       shares: 23,
@@ -41,9 +40,9 @@ const Community = () => {
     },
     {
       id: 3,
-      user: { name: "Marcus Chen", username: "greenmarc", avatar: "/placeholder.svg" },
+      user: { name: "Marcus Chen", username: "greenmarc", avatar: "https://picsum.photos/id/23/40/40" },
       content: "My little balcony garden is thriving! Started with just a few herbs and now I'm growing tomatoes, lettuce, and peppers. Urban gardening is easier than you think! Happy to share tips with anyone interested in starting their own.",
-      image: "/placeholder.svg",
+      image: "https://images.unsplash.com/photo-1466692476868-aef1dfb1e735?ixlib=rb-4.0.3&q=80&fm=jpg&crop=entropy&cs=tinysrgb&w=800&h=320&fit=crop",
       likes: 31,
       comments: 12,
       shares: 3,
@@ -59,7 +58,7 @@ const Community = () => {
       name: "Planet Protectors",
       members: 15,
       description: "Working together to complete larger environmental projects and support each other's eco-journey.",
-      avatar: "/placeholder.svg",
+      avatar: "https://picsum.photos/id/13/40/40",
       userIsMember: true,
       challenge: "Plant 100 Trees Challenge",
       progress: 65
@@ -69,7 +68,7 @@ const Community = () => {
       name: "Zero Waste Warriors",
       members: 28,
       description: "Focused on reducing waste through creative solutions and community action.",
-      avatar: "/placeholder.svg",
+      avatar: "https://picsum.photos/id/14/40/40",
       challenge: "Beach Clean-Up Marathon",
       progress: 80
     },
@@ -78,7 +77,7 @@ const Community = () => {
       name: "Climate Champions",
       members: 42,
       description: "Taking action to reduce carbon footprints and advocate for climate-friendly policies.",
-      avatar: "/placeholder.svg",
+      avatar: "https://picsum.photos/id/15/40/40",
       challenge: "Carbon Footprint Reduction",
       progress: 45
     },
@@ -87,7 +86,7 @@ const Community = () => {
       name: "Urban Gardeners",
       members: 19,
       description: "Growing food and beautiful spaces in urban environments.",
-      avatar: "/placeholder.svg",
+      avatar: "https://picsum.photos/id/19/40/40",
       challenge: "Community Garden Project",
       progress: 30
     },
@@ -103,7 +102,7 @@ const Community = () => {
       time: "9:00 AM - 12:00 PM",
       location: "Central Park, Main Entrance",
       attendees: 28,
-      image: "/placeholder.svg",
+      image: "https://images.unsplash.com/photo-1599666433235-31689096d7ff?ixlib=rb-4.0.3&q=80&fm=jpg&crop=entropy&cs=tinysrgb&w=800&h=320&fit=crop",
       isAttending: false
     },
     {
@@ -114,7 +113,7 @@ const Community = () => {
       time: "2:00 PM - 4:00 PM",
       location: "Community Center, 123 Green St",
       attendees: 15,
-      image: "/placeholder.svg",
+      image: "https://images.unsplash.com/photo-1491438590914-bc09fcaaf77a?ixlib=rb-4.0.3&q=80&fm=jpg&crop=entropy&cs=tinysrgb&w=800&h=320&fit=crop",
       isAttending: true
     },
     {
@@ -125,7 +124,7 @@ const Community = () => {
       time: "10:00 AM - 1:00 PM",
       location: "Community Garden, 456 Maple Ave",
       attendees: 32,
-      image: "/placeholder.svg",
+      image: "https://images.unsplash.com/photo-1518843023316-c54a1765959c?ixlib=rb-4.0.3&q=80&fm=jpg&crop=entropy&cs=tinysrgb&w=800&h=320&fit=crop",
       isAttending: false
     },
   ];
@@ -159,7 +158,7 @@ const Community = () => {
                     <CardContent className="pt-6">
                       <div className="flex items-start gap-3">
                         <Avatar>
-                          <AvatarImage src="/placeholder.svg" alt="Your Avatar" />
+                          <AvatarImage src="https://picsum.photos/id/4/40/40" alt="Your Avatar" />
                           <AvatarFallback>SG</AvatarFallback>
                         </Avatar>
                         <div className="flex-1 bg-gray-100 rounded-lg p-3">

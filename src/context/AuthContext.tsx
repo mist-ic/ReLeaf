@@ -35,89 +35,124 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   // --- Helper function to fetch profile ---
   const fetchProfile = async (userId: string) => {
+    // Reset profile state before fetching
+    // setProfile(null); // Optional: Decide if you want brief loading state on every profile fetch
     try {
       const { data, error, status } = await supabase
         .from('profiles')
-        .select(`id, name, age, points, login_streak`) // Select points and login_streak
+        .select(`id, name, age, points, login_streak`)
         .eq('id', userId)
         .single();
 
       if (error && status !== 406) {
-        // 406 means no row found, which is okay initially
+        // 406 means no row found, treat as error for existing users
         throw error;
       }
 
-      if (data) {
-        setProfile(data as Profile);
-      }
+      // If data is explicitly null (e.g., row exists but cols are null) or data is found
+      // Set profile state. Allows handling cases where profile exists but has no data yet.
+      setProfile(data as Profile | null);
+
     } catch (error: any) {
       console.error('Error fetching profile:', error.message);
-      // Handle error appropriately, maybe show a toast
+      setProfile(null); // Explicitly set profile to null on fetch error
     }
   };
   // --- End helper function ---
 
   useEffect(() => {
-    const fetchSession = async () => {
-      const { data: { session }, error } = await supabase.auth.getSession();
-      if (error) {
-        console.error("Error fetching session:", error);
-      } else {
-        setSession(session);
-        setUser(session?.user ?? null);
+    let isMounted = true; // Prevent state updates on unmounted component
+
+    const initializeAuth = async () => {
+      try {
+        // Initial check for session on load
+        const { data: { session: initialSession }, error: sessionError } = await supabase.auth.getSession();
+
+        if (sessionError) {
+          throw sessionError;
+        }
+
+        if (isMounted) {
+          setSession(initialSession);
+          const currentUser = initialSession?.user ?? null;
+          setUser(currentUser);
+          if (currentUser) {
+            await fetchProfile(currentUser.id); // Fetch profile if session exists
+          }
+          setLoading(false);
+        }
+      } catch (error: any) {
+        console.error("Error during initial auth load:", error.message);
+        if (isMounted) {
+          setSession(null);
+          setUser(null);
+          setProfile(null);
+          setLoading(false);
+        }
       }
-      setLoading(false);
     };
 
-    fetchSession();
+    initializeAuth();
 
-    // Listen for auth changes
+    // Listen for auth state changes
     const { data: authListener } = supabase.auth.onAuthStateChange(
-      async (_event, session) => {
-        const currentSessionUser = session?.user ?? null;
-        setSession(session);
+      async (_event, newSession) => {
+        // Note: Supabase client handles token refresh internally.
+        // This listener mainly reacts to SIGNED_IN, SIGNED_OUT, PASSWORD_RECOVERY etc.
+        if (!isMounted) return;
+
+        const currentSessionUser = newSession?.user ?? null;
+        setSession(newSession);
         setUser(currentSessionUser);
-        setProfile(null); // Reset profile on auth change
+
         if (currentSessionUser) {
-           await fetchProfile(currentSessionUser.id); // Fetch profile immediately on auth change
+          // User is signed in or session refreshed
+          await fetchProfile(currentSessionUser.id); 
+        } else {
+          // User signed out or session expired without refresh
+          setProfile(null); // Clear profile on sign out
         }
-        setLoading(false);
+        // Manage loading state based on session presence? 
+        // Or rely on profile loading? For now, keep it simple.
+        // setLoading(false); // Might cause flicker if profile fetch takes time
       }
     );
 
-    // Initial fetch on load
-     const initializeAuth = async () => {
-        const { data: { session }, error } = await supabase.auth.getSession();
-        if (error) {
-            console.error("Error fetching session:", error);
-        } else if (session?.user) {
-            setSession(session);
-            setUser(session.user);
-            await fetchProfile(session.user.id); // Fetch profile if session exists on load
-        }
-        setLoading(false);
-     };
-     initializeAuth();
-
     return () => {
+      isMounted = false;
       authListener?.subscription.unsubscribe();
     };
   }, []);
 
   const signOut = async () => {
-    setLoading(true);
-    const { error } = await supabase.auth.signOut();
-    if (error) {
-      console.error("Error signing out:", error);
-      // Handle error (e.g., show toast)
+    setLoading(true); // Indicate loading state during sign out
+    try {
+      const { error } = await supabase.auth.signOut();
+      if (error) {
+        console.error("Error signing out:", error);
+        // Still clear state even if Supabase signout fails?
+      }
+      // Explicitly clear local state immediately for faster UI update
+      // The onAuthStateChange listener will also fire, but this is more immediate.
+      setSession(null);
+      setUser(null);
+      setProfile(null);
+    } catch (error) {
+      console.error("Unexpected error during sign out:", error);
+      // Ensure state is cleared even if unexpected error occurs
+      setSession(null);
+      setUser(null);
+      setProfile(null);
+    } finally {
+       // No need for mount check here, just ensure loading is false
+       setLoading(false); 
     }
-    // State updates handled by onAuthStateChange listener
-    setLoading(false);
   };
 
-  // Function to allow manual profile refresh (e.g., after points update)
+  // Function to allow manual profile refresh
   const refreshProfile = async () => {
     if (user) {
+      // Optionally set loading state here if desired
       await fetchProfile(user.id);
     }
   };
@@ -128,7 +163,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     profile,
     loading,
     signOut,
-    refreshProfile, // Provide the refresh function
+    refreshProfile,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

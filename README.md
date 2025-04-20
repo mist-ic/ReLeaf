@@ -6,50 +6,88 @@ ReLeaf is an innovative app that transforms sustainability into an engaging game
 
 ## Key Features
 
-*   **Gamified Challenges:** Diverse daily, weekly, and monthly eco-friendly tasks.
-*   **Rewards System:** Earn points for completing challenges, redeemable for discounts, donations, and badges.
-*   **Social Engagement:** Leaderboards and community events to encourage collaboration.
-*   **Personalized Tracking:** Monitor progress and receive tailored challenge recommendations.
-*   **Community & Employment:** Encourages reusable product creation and local participation.
-*   **Proof of Action:** Requires real-time proof (e.g., GPS-tagged photos) for task completion.
+*   **User Authentication:** Secure sign-up, sign-in, sign-out, and password recovery.
+*   **Login Streaks:** Tracks consecutive daily logins with visual badges for milestones (3, 7, 14, 30 days).
+*   **Points System:** Displays user points (earned through future challenge completions).
+*   **Profile Management:** View profile details (username, join date) and update basic information (name, age).
+*   **Rewards:** Browse available rewards (redemption logic pending).
+*   **Static Pages:** About, Community, Leaderboard placeholders.
+*   **Gamified Challenges:** (Challenge viewing/details implemented, completion logic pending).
+*   **Responsive Design:** Adapts to different screen sizes.
 
 ## Tech Stack
 
-This project is built using:
-
-*   **Frontend Framework:** React (v18) with TypeScript
-*   **Build Tool:** Vite
-*   **UI Library:** Shadcn/ui (using Radix UI primitives & Tailwind CSS)
+*   **Framework:** React (v18 Functional Components + Hooks) with Vite
+*   **Language:** TypeScript
 *   **Routing:** React Router (v6)
-*   **Data Fetching/State Management:** TanStack Query (React Query v5)
+*   **Backend / API:** Supabase (Authentication, Database, Functions)
+*   **State Management:** React Context API (`AuthContext`)
+*   **UI Library:** shadcn/ui (Radix UI + Tailwind CSS)
 *   **Styling:** Tailwind CSS
-*   **Linting:** ESLint
+*   **Form Handling:** React Hook Form (v7)
+*   **Schema Validation:** Zod
+*   **Icons:** Lucide React
+*   **Package Manager:** Bun
 
 ## Getting Started
 
-First, install the dependencies:
+### Prerequisites
 
-```bash
-npm install
-# or
-yarn install
-# or
-pnpm install
-```
+*   Node.js (v18 or higher recommended)
+*   Bun (v1.1 or higher recommended)
+*   A Supabase account and project.
 
-Then, run the development server (defaults to http://localhost:8080):
+### Setup
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-```
+1.  **Clone the repository:**
+    ```bash
+    git clone https://github.com/mist-ic/ReLeaf.git
+    cd ReLeaf
+    ```
 
-Open [http://localhost:8080](http://localhost:8080) with your browser to see the result.
+2.  **Install dependencies using Bun:**
+    ```bash
+    bun install
+    ```
 
-The main application structure is defined in `src/App.tsx`, with pages located in `src/pages/` and reusable components in `src/components/`.
+3.  **Set up environment variables:**
+    *   Create a Supabase project at [supabase.com](https://supabase.com/).
+    *   Navigate to your project's **Settings > API**.
+    *   Copy the **Project URL** and the **anon public key**.
+    *   Rename the `.env.example` file in the project root to `.env`.
+    *   Paste your Project URL and anon key into the `.env` file:
+        ```dotenv
+        VITE_SUPABASE_URL=YOUR_PROJECT_URL
+        VITE_SUPABASE_ANON_KEY=YOUR_ANON_PUBLIC_KEY
+        ```
+
+4.  **Run the Supabase database migrations (Optional but recommended for local development):**
+    *   If you want the database functions (`update_login_streak`) and triggers (`handle_new_user`) locally, you can copy the SQL commands from the migrations applied via the assistant (check conversation history or Supabase dashboard SQL editor history) and run them in your Supabase project's SQL editor.
+
+5.  **Run the development server:**
+    ```bash
+    bun run dev
+    ```
+
+6.  Open [http://localhost:5173](http://localhost:5173) (or the port specified in the output) in your browser.
+
+## Screenshots
+
+| Page        | Screenshot                                       |
+| :---------- | :----------------------------------------------- |
+| Homepage    | ![Homepage](Screenshots/Homepage.png)            |
+| Challenges  | ![Challenges](Screenshots/Challenges.png)        |
+| Rewards     | ![Rewards](Screenshots/Rewards.png)              |
+| Leaderboard | ![Leaderboard](Screenshots/Leaderboard.png)      |
+| Community   | ![Community](Screenshots/Community.png)          |
+| Profile     | ![Profile](Screenshots/Profile.png)              |
+| About       | ![About](Screenshots/About.png)                  |
+
+## Deployment
+
+This app is configured for deployment on Netlify using Bun. Pushing to the main branch should trigger automatic builds based on `netlify.toml`.
+
+Ensure your Supabase environment variables (`VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`) are set in the Netlify site's **Build & deploy > Environment** settings.
 
 ## Learn More
 
@@ -59,9 +97,3 @@ The main application structure is defined in `src/App.tsx`, with pages located i
 *   [Shadcn/ui Documentation](https://ui.shadcn.com/)
 *   [TanStack Query Documentation](https://tanstack.com/query/latest)
 *   [React Router Documentation](https://reactrouter.com/)
-
-## Deployment
-
-The easiest way to deploy your Vite app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=vite&utm_source=create-vite&utm_campaign=create-vite-readme).
-
-Check out the [Vite deployment documentation](https://vitejs.dev/guide/static-deploy.html) for more details.
